@@ -1,7 +1,7 @@
-echo close GUI
+echo "close GUI"
 systemctl set-default multi-user.target
 
-echo close firewalld
+echo "close firewalld"
 systemctl stop firewalld
 systemctl disable firewalld
 
@@ -14,25 +14,24 @@ SELINUX=disabled
 SELINUXTYPE=targeted
 EOF
 
-echo close avahi-daemon
+echo "close avahi-daemon"
 systemctl stop avahi-daemon
 systemctl disable avahi-daemon
 
-echo delete virbr0 virtual network card
+echo "delete virbr0 virtual network card"
 ifconfig virbr0 down
 brctl delbr virbr0
 
-echo disable & mask libvirtd
+echo "disable & mask libvirtd"
 systemctl disable libvirtd.service
 systemctl mask libvirtd.service
 
-ech install rlwrap
+echo "install rlwrap"
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum install -y rlwrap
-echo install rlwrap done
 
 echo install Oracle preinstall
-yum localinstall oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm
+yum -y localinstall oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm
 echo install Oracle preinstall done
 
 passwd oracle << EOF
@@ -40,7 +39,7 @@ oracle
 oracle
 EOF
 
-echo user(oracle, grid) sudo
+echo "user(oracle, grid) sudo"
 chmod u+w /etc/sudoers
 
 cat << EOF >> /etc/sudoers
@@ -50,12 +49,12 @@ EOF
 
 chmod u-w /etc/sudoers
 
-# Install VIM
+echo "Install VIM"
 yum install -y vim
 
 ln -s /usr/bin/vim /usr/local/bin/vi
 
-# config vim 
+echo "config vim" 
 cat << EOF > ~/.vimrc
 filetype on         " 开启文件类型侦测类型
 filetype indent on  " 适应不同语言的缩进
@@ -77,4 +76,10 @@ set background=dark "
 colorscheme desert
 EOF
 
-yum update -y
+profile_size=`ls -l ~/.bash_profile | awk '{print $5}'`
+if [ $profile_size -lt 200 ]; then
+    unalias cp
+    cp -rf ./bash_profile.sh ~/.bash_profile
+fi
+
+
